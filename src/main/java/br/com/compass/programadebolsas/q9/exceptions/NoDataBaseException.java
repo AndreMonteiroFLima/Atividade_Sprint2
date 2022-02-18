@@ -1,15 +1,13 @@
 package br.com.compass.programadebolsas.q9.exceptions;
 
-public class IdException extends Exception{
+public class NoDataBaseException extends Exception{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	public IdException() {
-		super("id Não Econtrado");
+
+	public NoDataBaseException() {
+		super("No Database found!");
 	}
-	
-	
 }

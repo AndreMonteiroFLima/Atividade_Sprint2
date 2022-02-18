@@ -31,7 +31,7 @@ public class Menu {
 		funcDAO.cadastrar(func);
 		funcDAO.trasactionBegin();
 		funcDAO.commit();
-
+			
 		mostraFuncionarios(funcDAO);
 		funcDAO.close();
 

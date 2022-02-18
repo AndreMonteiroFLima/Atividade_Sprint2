@@ -47,6 +47,7 @@ public class ProdutoDAO {
 		} catch (SQLException e) {
 			throw new RuntimeException("Erro na Inserção");
 		}
+		
 	}
 
 	public void inserirComId(Produto produto) {
@@ -93,7 +94,7 @@ public class ProdutoDAO {
 						if (rst.getInt(1) == id)
 							return true;
 				}
-				throw new IdException("id Não Encontrado");
+				throw new IdException();
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
