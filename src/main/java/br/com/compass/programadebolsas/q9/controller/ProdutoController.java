@@ -17,8 +17,14 @@ public class ProdutoController {
 		this.produtoDao = new ProdutoDAO(con);
 	}
 	
-	public void insere(Produto produto) {
+	public void insereComID(Produto produto) {
 		System.out.println("Inserindo Produto: "+System.lineSeparator()+produto);
+		produtoDao.inserirComId(produto);
+	}
+	
+	
+	public void insere(Produto produto) {
+		System.out.println("Inserindo Produto(Ainda sem iD): "+System.lineSeparator()+produto);
 		produtoDao.inserir(produto);
 	}
 	
@@ -45,5 +51,9 @@ public class ProdutoController {
 	
 	public List<Produto> contemPalavra(String string){
 		return produtoDao.contemPalavra(string);
+	}
+	
+	public void fechaConexao() {
+		produtoDao.fechaConexao();
 	}
 }

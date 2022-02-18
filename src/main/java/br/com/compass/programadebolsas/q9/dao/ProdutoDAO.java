@@ -1,12 +1,11 @@
 package br.com.compass.programadebolsas.q9.dao;
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import br.com.compass.programadebolsas.q9.exceptions.IdException;
@@ -15,7 +14,7 @@ import br.com.compass.programadebolsas.q9.model.Produto;
 public class ProdutoDAO {
 
 	private Connection con;
-
+	
 	public ProdutoDAO(Connection con) {
 		this.con = con;
 	}
@@ -50,6 +49,37 @@ public class ProdutoDAO {
 		}
 	}
 
+	public void inserirComId(Produto produto) {
+
+		try {
+			String sql = "INSERT INTO PRODUTOS_Q9 (ID,NOME, DESCRICAO, DESCONTO, VALOR, DATAINSERCAO) VALUES (?,?,?,?,?,?)";
+
+			try (PreparedStatement pstm = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+				Date sqlDate = Date.valueOf(produto.getDataInicio());
+
+				pstm.setInt(1, produto.getId());
+				pstm.setString(2, produto.getNome());
+				pstm.setString(3, produto.getDescricao());
+				pstm.setDouble(4, produto.getDesconto());
+				pstm.setBigDecimal(5, produto.getValor());
+
+				pstm.setDate(6, sqlDate);
+
+				pstm.execute();
+
+				try (ResultSet rst = pstm.getGeneratedKeys()) {
+					while (rst.next()) {
+						produto.setId(rst.getInt(1));
+					}
+
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("Erro na Inserção");
+		}
+	}
+	
 	public boolean validaId(int id) throws IdException {
 		try {
 			String sql = "SELECT id FROM PRODUTOS_Q9 WHERE id=?";
@@ -132,7 +162,7 @@ public class ProdutoDAO {
 
 	public List<Produto> Listar() {
 		try {
-			List<Produto> produtos = new ArrayList<Produto>();
+			List<Produto> produtos = new LinkedList<Produto>();
 			String sql = "SELECT ID, NOME, DESCRICAO, DESCONTO,VALOR, DATAINSERCAO FROM PRODUTOS_Q9 ";
 
 			try (PreparedStatement pstm = con.prepareStatement(sql)) {
@@ -172,7 +202,7 @@ public class ProdutoDAO {
 	}
 
 	public List<Produto> contemPalavra(String string) {
-		List<Produto> produtos = new ArrayList<Produto>();
+		List<Produto> produtos = new LinkedList<Produto>();
 		int i = 0;
 		String[] splited = string.split(" ");
 
@@ -194,5 +224,14 @@ public class ProdutoDAO {
 		}
 		return produtos;
 	}
+	
+	public void fechaConexao() {
+		try {
+			this.con.close();
+		} catch (SQLException e) {
+			System.out.println(e);
+		}
+	}
+	
 
 }

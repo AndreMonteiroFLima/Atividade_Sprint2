@@ -20,24 +20,34 @@ public class LeitorDeArquivo {
 			while(arquivo.hasNext()) {
 				
 				String linha = arquivo.nextLine();
-				System.out.println(linha);
 				Produto produto = new Produto();
 				
 				Scanner leitorDeLinhas = new Scanner(linha);
 				leitorDeLinhas.useLocale(Locale.US);
 				leitorDeLinhas.useDelimiter(" ,");	
 				
-				produto.setNome(leitorDeLinhas.next());
-				produto.setDescricao(leitorDeLinhas.next());
-				produto.setDesconto(leitorDeLinhas.nextInt());
-				double valor = leitorDeLinhas.nextDouble();
-				produto.setValor(BigDecimal.valueOf(valor));
-				LocalDate data = DataFormatada.addDate(leitorDeLinhas.next());
-				produto.setDataInicio(data);				
-
-				pc.insere(produto);
+				int id = leitorDeLinhas.nextInt();
 				
-				leitorDeLinhas.close();
+				try {
+					pc.validaId(id);
+				} catch (Exception e) {
+					produto.setId(id);
+					produto.setNome(leitorDeLinhas.next());
+					produto.setDescricao(leitorDeLinhas.next());
+					produto.setDesconto(leitorDeLinhas.nextInt());
+					
+					double valor = leitorDeLinhas.nextDouble();
+					produto.setValor(BigDecimal.valueOf(valor));
+					
+					LocalDate data = DataFormatada.addDate(leitorDeLinhas.next());
+					produto.setDataInicio(data);				
+
+					pc.insereComID(produto);
+					
+					leitorDeLinhas.close();
+					
+				}
+				
 			}
 			
 			arquivo.close();

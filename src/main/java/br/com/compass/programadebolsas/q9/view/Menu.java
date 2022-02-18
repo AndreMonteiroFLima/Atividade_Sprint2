@@ -14,11 +14,14 @@ import br.com.compass.programadebolsas.q9.util.DataFormatada;
 
 public class Menu {
 
-	private ProdutoController pc = new ProdutoController();
-	private Scanner scanner = new Scanner(System.in);
-
+	private ProdutoController pc;
+	private Scanner scanner;
+	boolean continua;
+	
 	public Menu() {
-
+		pc = new ProdutoController();
+		scanner = new Scanner(System.in);
+		continua = true;
 	}
 
 	public boolean mostraMenu() {
@@ -37,10 +40,17 @@ public class Menu {
 
 	private boolean escolhas() {
 		int op = -1;
-		boolean continua = true;
+		
 		System.out.println("Opção:");
 
-		op = scanner.nextInt();
+		try {
+			op = scanner.nextInt();
+		} catch (InputMismatchException e) {
+			System.out.println("Ocorreu um erro: " + e);
+			System.out.println("Voltando ao Menu");
+			scanner.next();
+			return continua;
+		}
 
 		switch (op) {
 		case (1):
@@ -62,17 +72,20 @@ public class Menu {
 			menuInserirManual();
 			break;
 		case (0):
-			continua = false;
+			this.continua = false;
+			this.pc.fechaConexao();
 			break;
 		default:
 			System.out.println("Digite uma opção valida.");
 			break;
 		}
-		return continua;
+		return this.continua;
 	}
 
 	private void menuInserir() {
-		LeitorDeArquivo.leArquivoProdutos("produtos.cvs");	
+		
+		LeitorDeArquivo.leArquivoProdutos("produtos.cvs");
+			
 	}
 
 	private void menuInserirManual() {
@@ -90,55 +103,54 @@ public class Menu {
 		System.out.print("Valor:");
 		produto.setValor(scanner.nextBigDecimal());
 		scanner.nextLine();
-		
+
 		System.out.println("Data dia/mês/ano:");
 		try {
 			LocalDate data = DataFormatada.addDate(scanner.nextLine());
 			produto.setDataInicio(data);
-		}catch(DateTimeParseException e) {
+		} catch (DateTimeParseException e) {
 			System.out.println("Data Incorreta, retornando ao menu");
 			return;
 		}
 
 		pc.insere(produto);
-		System.out.println("Produto Inserido com ID:"+produto.getId());
+		System.out.println("Produto Inserido com ID:" + produto.getId());
 	}
 
 	private void menuAtualizar() {
-		
 
-		int id;	
-		
+		int id;
+
 		mostrarProdutos();
 		System.out.println("Digite o id que deseja alterar(-1 para voltar):");
 		try {
-			id=scanner.nextInt();
+			id = scanner.nextInt();
 		} catch (InputMismatchException e) {
 			System.out.println("Entrada invalida, retornando ao menu");
 			scanner.next();
 			return;
 		}
-		if(id==-1)
+		if (id == -1)
 			return;
 		try {
 			pc.validaId(id);
-			Produto produto=pc.buscaPorId(id);
+			Produto produto = pc.buscaPorId(id);
 			System.out.println("Produto Selecionado: ");
 			System.out.println(produto);
 			System.out.println("========Digite os dados para alteração========");
-			
+
 			scanner.nextLine();
 			System.out.print("Nome: ");
-			try{
+			try {
 				produto.setNome(scanner.nextLine());
-			}catch(InputMismatchException e) {
+			} catch (InputMismatchException e) {
 				System.out.println("Entrada Incompativel, por favor digite um id valido");
 				return;
 			}
-			
+
 			System.out.print("Descrição: ");
 			produto.setDescricao(scanner.nextLine());
-			
+
 			System.out.print("Desconto: ");
 			produto.setDesconto(scanner.nextFloat());
 			System.out.print("Valor:");
@@ -148,61 +160,61 @@ public class Menu {
 			try {
 				LocalDate data = DataFormatada.addDate(scanner.nextLine());
 				produto.setDataInicio(data);
-			}catch(DateTimeParseException e) {
+			} catch (DateTimeParseException e) {
 				System.out.println("Data Incorreta, retornando ao menu");
 				return;
 			}
 			pc.atualiza(produto);
-			
-			System.out.println("Produto Atualizado: "+produto);
-		}catch(IdException e) {
+
+			System.out.println("Produto Atualizado: " + produto);
+		} catch (IdException e) {
 			System.out.println(e.getMessage());
-			menuInserir();
+			menuInserirManual();
 		}
-		
+
 	}
 
 	private void mostrarProdutos() {
 		System.out.println("========Produtos Na Tabela========");
-		List<Produto> produtos= pc.lista();
+		List<Produto> produtos = pc.lista();
 		produtos.stream().forEach(p -> {
 			System.out.println(p);
 		});
 		System.out.println("");
-		
+
 		produtos.clear();
 	}
-	
+
 	private void menuDeleta() {
-		int id;	
+		int id;
 		System.out.println("========Digite o id do Produto que deseja DELETAR========");
-		id=scanner.nextInt();
-		pc.deletar(id);	
-		
+		id = scanner.nextInt();
+		pc.deletar(id);
+
 	}
-	
+
 	private void contemPalavra() {
 		String palavra;
-		
+
 		System.out.println("Digite a palavra que deseja procurar:");
 		scanner.nextLine();
-		palavra=scanner.nextLine();
-	
+		palavra = scanner.nextLine();
+
 		List<Produto> produtos = pc.contemPalavra(palavra);
-		if(produtos.size()==0) {
+		if (produtos.size() == 0) {
 			System.out.println("Nenhuma palavra correspondente");
 			return;
 		}
-			
+
 		produtos.stream().forEach(p -> {
 			System.out.println(p);
-		});	
-		
+		});
+
 		produtos.clear();
 	}
-	
+
 	public void fechaScanner() {
 		this.scanner.close();
 	}
-	
+
 }
